@@ -17,3 +17,11 @@ changes that affect users.
 
 Make changes to the module and its manifest in this repository so it can be
 maintained and developed independently.
+
+## Availability handling
+
+The AC is a mobile device and is not always reachable.
+
+- Network failures are handled with an exponential back-off (`interval` doubled per consecutive failure, capped by attribute `maxBackoff`, default 600s). While unreachable, `state`/`online` are `offline`; the connection is re-established automatically.
+- Attribute `disable` (`0`/`1`): when `1`, the module has no network activity at all and `state` is `disabled`.
+- `set <name> disable` / `set <name> enable` set the `disable` attribute at runtime (without saving the config).
