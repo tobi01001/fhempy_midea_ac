@@ -5,6 +5,8 @@ from fhempy.lib import fhem
 from fhempy.lib.generic import FhemModule
 from msmart.device.AC.device import AirConditioner as AC
 
+__version__ = "1.0.0"
+
 
 
 class midea_ac(FhemModule):

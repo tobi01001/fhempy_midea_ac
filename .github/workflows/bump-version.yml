@@ -1,0 +1,65 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    # skip commits made by this workflow itself
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Bump patch version unless changed in the merge
+        run: |
+          python3 - <<'PY'
+          import json, re, subprocess, sys
+
+          def git(*a):
+              r = subprocess.run(["git", *a], capture_output=True, text=True)
+              return r.stdout if r.returncode == 0 else ""
+
+          def manifest_ver(txt):
+              try:
+                  return json.loads(txt)["version"]
+              except Exception:
+                  return None
+
+          def py_ver(txt):
+              m = re.search(r'^__version__\s*=\s*"([^"]+)"', txt, re.M)
+              return m.group(1) if m else None
+
+          cur_m = open("manifest.json").read()
+          cur_p = open("midea_ac.py").read()
+          prev_m = git("show", "HEAD~1:manifest.json")
+          prev_p = git("show", "HEAD~1:midea_ac.py")
+
+          # version already set in the PR -> only sync the other file if needed
+          changed = (manifest_ver(prev_m) != manifest_ver(cur_m)
+                     or py_ver(prev_p) != py_ver(cur_p))
+          if changed:
+              # prefer whichever file was changed in the PR
+              new = manifest_ver(cur_m) if manifest_ver(prev_m) != manifest_ver(cur_m) else py_ver(cur_p)
+          else:
+              major, minor, patch = manifest_ver(cur_m).split(".")
+              new = f"{major}.{minor}.{int(patch)+1}"
+
+          m = re.sub(r'("version"\s*:\s*")[^"]+(")', rf'\g<1>{new}\g<2>', cur_m, count=1)
+          p = re.sub(r'^(__version__\s*=\s*")[^"]+(")', rf'\g<1>{new}\g<2>', cur_p, count=1, flags=re.M)
+          open("manifest.json", "w").write(m)
+          open("midea_ac.py", "w").write(p)
+          print("version:", new)
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: bump version [skip ci]"
+          git push
