@@ -10,8 +10,8 @@ __version__ = "1.0.0"
 
 
 class midea_ac(FhemModule):
-    def __init__(self, fhem_args):
-        super().__init__(fhem_args)
+    def __init__(self, logger):
+        super().__init__(logger)
         self.device = None
         self._network_busy = False
         self._connected = False
@@ -35,7 +35,7 @@ class midea_ac(FhemModule):
 
     async def Define(self, hash, args, argsh):
         self.logger.info("Midea_AC: [DEBUG] Define gestartet.")
-        ## self.hash = hash
+        await super().Define(hash, args, argsh)
         try:
             await self.set_set_config(self._set_list)
             
