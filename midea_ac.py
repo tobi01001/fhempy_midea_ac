@@ -10,10 +10,9 @@ __version__ = "1.0.0"
 
 
 class midea_ac(FhemModule):
-    def __init__(self, logger):
-        super().__init__(logger)
+    def __init__(self, fhem_args):
+        super().__init__(fhem_args)
         self.device = None
-        self.hash = None
         self._network_busy = False
         self._connected = False
         self._fail_count = 0
@@ -36,7 +35,7 @@ class midea_ac(FhemModule):
 
     async def Define(self, hash, args, argsh):
         self.logger.info("Midea_AC: [DEBUG] Define gestartet.")
-        self.hash = hash
+        ## self.hash = hash
         try:
             await self.set_set_config(self._set_list)
             
@@ -296,8 +295,8 @@ class midea_ac(FhemModule):
             self._network_busy = False
     
     async def _set_disable_attr(self, value):
-        # Attribut ohne "save"-Pflicht setzen (kein 'save' ausgeführt)
         await fhem.CommandAttr(self.hash, f"{self.hash['NAME']} disable {value}")
+        return ""
 
     async def set_enable(self, hash, params):
         self.logger.info("Midea_AC: [FHEM-SET] set enable")
