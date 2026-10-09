@@ -66,6 +66,32 @@ included in fhempy's update control file, users receive it through the normal
 FHEM update process above. Confirm with fhempy maintainers whether that control
 file is generated or needs to be changed in the upstream contribution.
 
+### Adding and updating the module in fhempy
+
+For the initial contribution, work on a branch in a fork or checkout of
+[fhempy/fhempy](https://github.com/fhempy/fhempy):
+
+1. Add a `midea_ac` package at
+   `FHEM/bindings/python/fhempy/lib/midea_ac/`, following the structure of an
+   existing module such as `gree_climate`. Include `__init__.py`,
+   `midea_ac.py`, and `manifest.json`; the implementation's class and Python
+   filename should both be named `midea_ac`.
+2. Put `msmart-ng` in the manifest's `requirements` list and include any
+   relevant user instructions in a module `README.md` or the fhempy module
+   listing, following the chosen template.
+3. Test the module from that fhempy checkout and verify the manifest installs
+   its dependency. Submit the branch to the fhempy maintainers for review.
+   Check with them whether `controls_pythonbinding.txt` is generated or needs
+   a change as part of the contribution.
+
+For every later change, make and validate it here first, then carry the same
+code and manifest changes into the fhempy module directory and have them
+reviewed and merged there. Keep both copies aligned, including the dependency
+and version. Once the upstream update is merged and present in its update
+control file, FHEM users can receive it through `update all`. This is a manual
+upstream propagation step; publishing a release in this repository alone does
+not update fhempy.
+
 ## Availability handling
 
 The AC is a mobile device and is not always reachable.
